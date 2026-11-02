@@ -43,12 +43,12 @@ export function renderPage(item,solution=false){
     if(solution){c.save();c.globalAlpha=.45;c.lineWidth=size*.25;c.lineCap='round';c.lineJoin='round';c.beginPath();p.path.forEach((i,k)=>{const px=x+(i%n+.5)*size,py=y+((i/n|0)+.5)*size;k?c.lineTo(px,py):c.moveTo(px,py);});c.stroke();c.restore();}
   }
   if(p.type==='words'){
-    const wordRows=Math.ceil(p.placements.length/3),gridSize=Math.min(1000,bodyHeight-100-wordRows*43),size=gridSize/p.n,x=(1240-gridSize)/2,y=centeredY(gridSize+100+wordRows*43);
+    const bilingual=p.placements.some(word=>word.translation),rowHeight=bilingual?72:43,wordRows=Math.ceil(p.placements.length/3),gridSize=Math.min(1000,bodyHeight-100-wordRows*rowHeight),size=gridSize/p.n,x=(1240-gridSize)/2,y=centeredY(gridSize+100+wordRows*rowHeight);
     if(solution){c.save();c.globalAlpha=.2;c.lineCap='round';p.placements.forEach(w=>{const a=w.cells[0],b=w.cells.at(-1);line(x+(a[1]+.5)*size,y+(a[0]+.5)*size,x+(b[1]+.5)*size+.01,y+(b[0]+.5)*size+.01,size*.72);});c.restore();}
     p.grid.forEach((ch,i)=>text(ch,x+(i%p.n+.5)*size,y+((i/p.n|0)+.69)*size,size*.52,'center'));
     line(x-15,y-16,x+gridSize+15,y-16);line(x-15,y+gridSize+16,x+gridSize+15,y+gridSize+16);
-    text('PALABRAS POR ENCONTRAR',620,y+gridSize+68,25,'center');
-    p.placements.forEach((w,i)=>text(w.word,160+(i%3)*340,y+gridSize+115+(i/3|0)*43,30));
+    text(bilingual?'PALABRAS EN INGLÉS · TRADUCCIÓN AL ESPAÑOL':'PALABRAS POR ENCONTRAR',620,y+gridSize+68,25,'center');
+    p.placements.forEach((w,i)=>{const xx=140+(i%3)*340,yy=y+gridSize+115+(i/3|0)*rowHeight;let wordSize=bilingual?28:30;c.font=wordSize+'px '+font;while(c.measureText(w.label||w.word).width>310&&wordSize>21){wordSize--;c.font=wordSize+'px '+font;}text(w.label||w.word,xx,yy,wordSize);if(w.translation){let translationSize=23;c.font=translationSize+'px '+font;while(c.measureText(w.translation).width>310&&translationSize>17){translationSize--;c.font=translationSize+'px '+font;}text(w.translation,xx,yy+28,translationSize);}});
   }
   if(p.type==='crossword'){
     const columnHeight=(dir,size)=>60+p.entries.filter(e=>e.dir===dir).reduce((height,e)=>height+wrappedLines(`${e.number}. ${e.clue}`,495,size).length*size*1.28+15,0);

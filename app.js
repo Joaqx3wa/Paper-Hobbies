@@ -1,4 +1,4 @@
-import {GAMES,LEVELS,HELP,generate,logicalPages,imposeOnA4,batchPlan,THEMES,wordHistory,restoreWordHistory} from './engine.js';
+import {GAMES,LEVELS,HELP,generate,logicalPages,imposeOnA4,batchPlan,THEMES,BANK_WORD_COUNT,wordHistory,restoreWordHistory} from './engine.js';
 import {renderPage,blankPage} from './render.js';
 import {makePdf,pageImage} from './pdf.js';
 import {makeZip} from './zip.js';
@@ -7,7 +7,8 @@ import {DEFAULT_COLORS,savedPalette,confirmPalette,validColor} from './palette.j
 const $=id=>document.getElementById(id);
 let titleCase='title',subtitleCase='title';
 $('theme').replaceChildren(...THEMES.map(theme=>{const option=document.createElement('option');option.value=theme.id;option.textContent=theme.label+' · '+theme.count;return option;}));
-$('bankStats').textContent=THEMES.length-1+' temas · '+THEMES[0].count+' palabras';
+$('theme').value='general';
+$('bankStats').textContent=THEMES.length-2+' temas · '+BANK_WORD_COUNT+' palabras';
 function syncCases(){for(const id of ['titleCase','subtitleCase'])document.querySelectorAll('#'+id+' button').forEach(button=>{const active=button.dataset.case===(id==='titleCase'?titleCase:subtitleCase);button.classList.toggle('selected',active);button.setAttribute('aria-pressed',active);});}
 for(const id of ['titleCase','subtitleCase'])document.querySelectorAll('#'+id+' button').forEach(button=>button.onclick=()=>{if(id==='titleCase')titleCase=button.dataset.case;else subtitleCase=button.dataset.case;syncCases();repaint();});
 let type='crossword',level=1,current=null,queue=[],busy=false;
