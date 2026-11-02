@@ -3,6 +3,14 @@ import {generate,sudokuCount,logicalPages,impose,imposeOnA4,GAMES} from './engin
 import {countKakuro} from './kakuro.js';
 import {DEFAULT_COLORS,confirmPalette,savedPalette} from './palette.js';
 import {batchPlan} from './engine.js';
+import {THEMES,dictionary,restoreWordHistory,wordHistory} from './engine.js';
+import {applyCase,subtitleText} from './typography.js';
+
+test('Banco compartido: más de 1600 palabras, 24 temas y pistas completas',()=>{assert.ok(dictionary('general').length>=1600);assert.ok(THEMES.length>=25);for(const id of ['pokemon','mamiferos','cotidiano','cocina','aves','marinos'])assert.ok(dictionary(id).length>=50);assert.ok(dictionary('pokemon').length>=240);for(const theme of THEMES){const entries=dictionary(theme.id);assert.equal(new Set(entries.map(e=>e[0])).size,entries.length);for(const entry of entries){assert.match(entry[0],/^[A-Z]{3,18}$/);assert.ok(entry.slice(1).every(clue=>typeof clue==='string'&&clue.trim().length>=8));}}});
+
+test('Todos los temas funcionan en crucigramas y sopas, con menos repeticiones',()=>{for(const theme of THEMES)for(let level=0;level<3;level++){const a=generate('crossword',level,theme.id),b=generate('crossword',level,theme.id);assert.equal(a.entries.length,[6,9,12][level]);assert.equal(b.entries.length,a.entries.length);assert.equal(a.theme,theme.id);assert.ok(a.entries.every(entry=>!b.entries.some(next=>next.word===entry.word)));const first=generate('words',level,theme.id),second=generate('words',level,theme.id);assert.equal(first.placements.length,[7,10,13][level]);assert.equal(second.placements.length,first.placements.length);assert.equal(first.theme,theme.id);assert.ok(first.placements.every(entry=>!second.placements.some(next=>next.word===entry.word)));}});
+
+test('AA, aa y Aa respetan tildes, números y el tema del subtítulo',()=>{assert.equal(applyCase('Sopa de letras #12','upper'),'SOPA DE LETRAS #12');assert.equal(applyCase('NIVEL FÁCIL · POKÉMON','lower'),'nivel fácil · pokémon');assert.equal(applyCase('nivel FÁCIL · animales mamíferos','title'),'Nivel Fácil · Animales Mamíferos');assert.equal(subtitleText('Intermedio','Pokémon',true,'upper'),'NIVEL INTERMEDIO · POKÉMON · SOLUCIÓN');const saved=wordHistory();restoreWordHistory(saved);assert.deepEqual(wordHistory(),saved);});
 
 test('Paquetes: 5 fáciles, 3 intermedios y 2 difíciles sin depender del editor',()=>{const plan=batchPlan([5,3,2]);assert.equal(plan.length,10);assert.deepEqual([0,1,2].map(level=>plan.filter(it=>it.level===level).length),[5,3,2]);assert.ok(batchPlan([1,2,3],'maze').every(it=>it.type==='maze'));assert.throws(()=>batchPlan([0,0,0]));assert.throws(()=>batchPlan([10,10,10]));assert.throws(()=>batchPlan([-1,2,0]));assert.throws(()=>batchPlan([1.5,0,0]));});
 

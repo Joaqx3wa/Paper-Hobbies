@@ -1,4 +1,5 @@
-import {GAMES,LEVELS} from './engine.js';
+import {applyCase,subtitleText} from './typography.js';
+import {GAMES,LEVELS,THEMES} from './engine.js';
 
 export function renderPage(item,solution=false){
   const canvas=document.createElement('canvas');canvas.width=2480;canvas.height=3508;
@@ -8,12 +9,20 @@ export function renderPage(item,solution=false){
   const line=(x,y,x2,y2,width=1)=>{c.beginPath();c.lineWidth=width;c.moveTo(x,y);c.lineTo(x2,y2);c.stroke();};
   function wrappedLines(value,width,size){c.font=`${size}px ${font}`;let rows=[],row='';for(const word of value.split(' ')){if(row&&c.measureText(row+' '+word).width>width){rows.push(row);row=word;}else row+=(row?' ':'')+word;}if(row)rows.push(row);return rows;}
   function wrap(value,x,y,width,size){const rows=wrappedLines(value,width,size);rows.forEach((row,i)=>text(row,x,y+i*size*1.28,size));return y+rows.length*size*1.28;}
-  const centeredY=height=>330+(1300-height)/2;
-  const name=GAMES.find(g=>g[0]===p.type)[2],heading=item.title||name+' #1',weight=s.titleBold?'bold':'normal';
+  let bodyTop=330;
+  const centeredY=height=>bodyTop+(1630-bodyTop-height)/2;
+  const name=GAMES.find(g=>g[0]===p.type)[2],heading=applyCase(item.title||name+' #1',s.titleCase||'title'),weight=s.titleBold?'bold':'normal';
   let titleSize=82;c.font=`${weight} ${titleSize}px ${font}`;
   while(c.measureText(heading).width>1040&&titleSize>28){titleSize--;c.font=`${weight} ${titleSize}px ${font}`;}
   text(heading,620,165,titleSize,'center',weight);
-  text('Nivel '+LEVELS[item.level]+(solution?' · Solución':''),620,250,46,'center');
+  const themeLabel=['crossword','words'].includes(p.type)?(THEMES.find(theme=>theme.id===p.theme)?.label||'Temas variados'):'';
+  const subtitle=subtitleText(LEVELS[item.level],themeLabel,solution,s.subtitleCase||'title');
+  let subtitleSize=46;c.font=`${subtitleSize}px ${font}`;
+  while(c.measureText(subtitle).width>1040&&subtitleSize>40){subtitleSize--;c.font=`${subtitleSize}px ${font}`;}
+  const subtitleLines=wrappedLines(subtitle,1040,subtitleSize);
+  subtitleLines.forEach((row,index)=>text(row,620,250+index*54,subtitleSize,'center'));
+  if(subtitleLines.length>1)bodyTop=380;
+  const bodyHeight=1630-bodyTop;
 
   if(p.type==='sudoku'){
     const size=112,x=(1240-9*size)/2,y=centeredY(9*size);
@@ -34,7 +43,7 @@ export function renderPage(item,solution=false){
     if(solution){c.save();c.globalAlpha=.45;c.lineWidth=size*.25;c.lineCap='round';c.lineJoin='round';c.beginPath();p.path.forEach((i,k)=>{const px=x+(i%n+.5)*size,py=y+((i/n|0)+.5)*size;k?c.lineTo(px,py):c.moveTo(px,py);});c.stroke();c.restore();}
   }
   if(p.type==='words'){
-    const wordRows=Math.ceil(p.placements.length/3),gridSize=Math.min(1000,1240-60-wordRows*43),size=gridSize/p.n,x=(1240-gridSize)/2,y=centeredY(gridSize+100+wordRows*43);
+    const wordRows=Math.ceil(p.placements.length/3),gridSize=Math.min(1000,bodyHeight-100-wordRows*43),size=gridSize/p.n,x=(1240-gridSize)/2,y=centeredY(gridSize+100+wordRows*43);
     if(solution){c.save();c.globalAlpha=.2;c.lineCap='round';p.placements.forEach(w=>{const a=w.cells[0],b=w.cells.at(-1);line(x+(a[1]+.5)*size,y+(a[0]+.5)*size,x+(b[1]+.5)*size+.01,y+(b[0]+.5)*size+.01,size*.72);});c.restore();}
     p.grid.forEach((ch,i)=>text(ch,x+(i%p.n+.5)*size,y+((i/p.n|0)+.69)*size,size*.52,'center'));
     line(x-15,y-16,x+gridSize+15,y-16);line(x-15,y+gridSize+16,x+gridSize+15,y+gridSize+16);
@@ -46,8 +55,8 @@ export function renderPage(item,solution=false){
     let clueSize=33;
     while(clueSize>27&&Math.max(columnHeight(0,clueSize),columnHeight(1,clueSize))>570)clueSize--;
     const cluesHeight=Math.max(columnHeight(0,clueSize),columnHeight(1,clueSize));
-    const size=Math.min(90,1020/p.cols,Math.min(850,1300-cluesHeight-75)/p.rows),width=p.cols*size,height=p.rows*size,x=(1240-width)/2,y=centeredY(height+75+cluesHeight);
-    p.grid.forEach((ch,i)=>{const px=x+i%p.cols*size,py=y+(i/p.cols|0)*size;if(!ch){c.globalAlpha=.87;c.fillRect(px,py,size,size);c.globalAlpha=1;}else{c.lineWidth=1;c.strokeRect(px,py,size,size);if(p.numbers[i])text(p.numbers[i],px+size*.09,py+size*.25,size*.22);if(solution)text(ch,px+size*.5,py+size*.76,size*.54,'center');}});
+    const size=Math.min(90,1020/p.cols,Math.min(850,bodyHeight-cluesHeight-75)/p.rows),width=p.cols*size,height=p.rows*size,x=(1240-width)/2,y=centeredY(height+75+cluesHeight);
+    p.grid.forEach((ch,i)=>{const px=x+i%p.cols*size,py=y+(i/p.cols|0)*size;if(!ch){c.globalAlpha=.87;c.fillRect(px,py,size,size);c.globalAlpha=1;}else{c.lineWidth=1;c.strokeRect(px,py,size,size);if(p.numbers[i]){c.save();c.globalAlpha=.25;c.textBaseline='middle';text(p.numbers[i],px+size*.5,py+size*.53,size*(p.numbers[i]<10?.88:.67),'center','bold');c.restore();}if(solution)text(ch,px+size*.5,py+size*.76,size*.54,'center');}});
     const clueY=y+height+75;line(100,clueY-38,1140,clueY-38);
     for(let dir=0;dir<2;dir++){const xx=100+dir*535;let yy=clueY;text(dir?'Verticales':'Horizontales',xx,yy,37);yy+=55;for(const e of p.entries.filter(e=>e.dir===dir))yy=wrap(`${e.number}. ${e.clue}`,xx,yy,495,clueSize)+15;}
   }
