@@ -29,7 +29,7 @@ jobs:
       - name: Prepare static files
         run: |
           mkdir _site
-          cp index.html style.css app.js engine.js render.js pdf.js zip.js .nojekyll _site/
+          cp index.html style.css app.js engine.js kakuro.js render.js pdf.js zip.js palette.js .nojekyll _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
