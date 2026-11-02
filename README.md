@@ -5,11 +5,12 @@ Generador de pasatiempos en español, con estética de papel y exportación para
 ## Juegos y personalización
 
 - Sudoku, laberintos, sopas de letras, crucigramas y Kakuro.
+- Laberintos con bifurcaciones, múltiples callejones y desvíos profundos a lo largo de la ruta correcta.
 - Niveles Fácil, Intermedio y Difícil; cambian las ayudas, los tamaños, las direcciones o las pistas según el juego.
 - Kakuro con patrones irregulares y conectados, casillas negras interiores, tramos de distintas longitudes, sumas calculadas y solución única. Incluye dígitos de ayuda cuando son necesarios para asegurar unicidad.
 - Sudokus de solución única y crucigramas conectados con pistas numeradas, sin mostrar la cantidad de letras.
-- Títulos automáticos por tipo, como «Crucigrama #1», seguidos del nivel. Las hojas no incluyen instrucciones, descripciones ni pies de página.
-- Color de papel y tipografía. La tinta se aplica al confirmar el selector RGB. Se guardan hasta cuatro opciones; un color nuevo reemplaza la última, conservando las primeras tres.
+- Contenido de las hojas centrado, títulos y subtítulos más grandes y opción de título en negrita. Títulos automáticos por tipo, como «Crucigrama #1», seguidos del nivel. Las hojas no incluyen instrucciones, descripciones ni pies de página.
+- Color de papel y tipografía. La tinta se previsualiza en vivo al ajustar el selector RGB y se guarda al confirmar; cancelar o cerrar restaura el color anterior. Se guardan hasta cuatro opciones; un color nuevo reemplaza la última, conservando las primeras tres.
 - La zona principal se ajusta a una pantalla de escritorio; el armado de cuadernillos queda debajo.
 
 Los crucigramas usan vocabulario y pistas locales para Naturaleza, Vida cotidiana y Ciencia y cultura. Las sopas admiten palabras propias. No se necesitan cuentas ni servicios de generación externos.
@@ -18,6 +19,7 @@ Los crucigramas usan vocabulario y pistas locales para Naturaleza, Vida cotidian
 
 - PNG de 2480 × 3508 píxeles en proporción A4. Si se incluye solución, se descargan dos imágenes dentro de un ZIP.
 - PDF A4 individual: el juego y su solución están en páginas consecutivas.
+- Paquetes con cantidades independientes por dificultad (por ejemplo, 5 fáciles, 3 intermedios y 2 difíciles).
 - Colecciones de hasta 24 juegos, reordenables y guardadas localmente en el navegador.
 - PDF A4 o A6 en orden de lectura.
 - Cuadernillo A6 impuesto sobre A5 o A4. Cada solución se encuentra al reverso de la página de su juego. También se puede dejar ese reverso en blanco o imprimir juegos consecutivos sin soluciones.

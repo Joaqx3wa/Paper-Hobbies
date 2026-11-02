@@ -1,13 +1,66 @@
 import {GAMES,LEVELS} from './engine.js';
-export function renderPage(item,solution=false,pageNumber='',collection=''){const canvas=document.createElement('canvas');canvas.width=2480;canvas.height=3508;const c=canvas.getContext('2d'),p=item.puzzle,s=item.style||{},ink=s.ink||'#30332e',font=s.font||'serif';c.scale(2,2);c.fillStyle=s.paper||'#fffdf6';c.fillRect(0,0,1240,1754);c.fillStyle=ink;c.strokeStyle=ink;
-function text(t,x,y,size=24,align='left',weight='normal'){c.font=`${weight} ${size}px ${font}`;c.textAlign=align;c.fillText(t,x,y);}
-function line(x,y,x2,y2,w=1){c.beginPath();c.lineWidth=w;c.moveTo(x,y);c.lineTo(x2,y2);c.stroke();}
-function wrap(t,x,y,width,size=24){c.font=`${size}px ${font}`;let words=t.split(' '),row='';for(const word of words){if(row&&c.measureText(row+' '+word).width>width){text(row,x,y,size);y+=size*1.3;row=word;}else row+=(row?' ':'')+word;}if(row)text(row,x,y,size);return y+size*1.3;}
-const name=GAMES.find(g=>g[0]===p.type)[2];const heading=item.title||name+' #1';let titleSize=65;c.font=titleSize+'px '+font;while(c.measureText(heading).width>1030&&titleSize>18){titleSize--;c.font=titleSize+'px '+font;}text(heading,620,155,titleSize,'center');text('Nivel '+LEVELS[item.level]+(solution?' · Solución':''),620,218,29,'center');
-if(p.type==='sudoku'){const size=100,x=170,y=410;for(let r=0;r<=9;r++)line(x,y+r*size,x+900,y+r*size,r%3===0?4:1);for(let col=0;col<=9;col++)line(x+col*size,y,x+col*size,y+900,col%3===0?4:1);for(let i=0;i<81;i++){const v=(solution?p.answer:p.grid)[i];if(v){c.globalAlpha=solution&&!p.grid[i] ? .9 : 1;text(v,x+i%9*size+size/2,y+(i/9|0)*size+size*.67,49,'center',p.grid[i]?'bold':'normal');c.globalAlpha=1;}}}
-if(p.type==='maze'){const size=950/p.n,x=145,y=405,n=p.n;for(let i=0;i<n*n;i++){let r=i/n|0,col=i%n;if(p.walls[i][0])line(x+col*size,y+r*size,x+(col+1)*size,y+r*size,2);if(p.walls[i][3])line(x+col*size,y+r*size,x+col*size,y+(r+1)*size,2);if(r===n-1&&p.walls[i][2])line(x+col*size,y+(r+1)*size,x+(col+1)*size,y+(r+1)*size,2);if(col===n-1&&p.walls[i][1])line(x+(col+1)*size,y+r*size,x+(col+1)*size,y+(r+1)*size,2);}text('↓',x+size/2,375,28,'center');text('↓',x+950-size/2,y+1000,28,'center');if(solution){c.save();c.globalAlpha=.45;c.lineWidth=size*.25;c.lineCap='round';c.lineJoin='round';c.beginPath();p.path.forEach((i,k)=>{const px=x+(i%n+.5)*size,py=y+((i/n|0)+.5)*size;k?c.lineTo(px,py):c.moveTo(px,py);});c.stroke();c.restore();}}
-if(p.type==='words'){const size=900/p.n,x=170,y=390;if(solution){c.save();c.globalAlpha=.2;c.lineCap='round';c.lineWidth=size*.75;p.placements.forEach(w=>{let a=w.cells[0],b=w.cells.at(-1);line(x+(a[1]+.5)*size,y+(a[0]+.5)*size,x+(b[1]+.5)*size+.01,y+(b[0]+.5)*size+.01,size*.72);});c.restore();}p.grid.forEach((ch,i)=>text(ch,x+(i%p.n+.5)*size,y+((i/p.n|0)+.69)*size,size*.52,'center'));line(x-20,y-20,x+920,y-20);line(x-20,y+920,x+920,y+920);text('PALABRAS POR ENCONTRAR',620,1375,20,'center');p.placements.forEach((w,i)=>text(w.word,230+(i%3)*340,1430+(i/3|0)*40,24));}
-if(p.type==='crossword'){const size=Math.min(63,970/p.cols,600/p.rows),width=p.cols*size,height=p.rows*size,x=(1240-width)/2,y=365;p.grid.forEach((ch,i)=>{let r=i/p.cols|0,col=i%p.cols,px=x+col*size,py=y+r*size;if(!ch){c.globalAlpha=.87;c.fillStyle=ink;c.fillRect(px,py,size,size);c.globalAlpha=1;}else{c.lineWidth=1;c.strokeRect(px,py,size,size);if(p.numbers[i])text(p.numbers[i],px+size*.09,py+size*.25,size*.22);if(solution)text(ch,px+size*.5,py+size*.76,size*.54,'center');}});const clueY=Math.max(1030,y+height+65);line(100,clueY-35,1140,clueY-35);let clueSize=28;function columnHeight(dir,size){c.font=size+'px '+font;let h=45;for(const e of p.entries.filter(e=>e.dir===dir)){let row='',lines=1;for(const word of (e.number+'. '+e.clue).split(' ')){if(row&&c.measureText(row+' '+word).width>495){lines++;row=word;}else row+=(row?' ':'')+word;}h+=lines*size*1.3+14;}return h;}while(clueSize>22&&Math.max(columnHeight(0,clueSize),columnHeight(1,clueSize))>1580-clueY)clueSize--;for(let dir=0;dir<2;dir++){let xx=100+dir*535,yy=clueY;text(dir?'Verticales':'Horizontales',xx,yy,31);yy+=45;for(const e of p.entries.filter(e=>e.dir===dir)){yy=wrap(`${e.number}. ${e.clue}`,xx,yy,495,clueSize)+14;}}}
-if(p.type==='kakuro'){const size=Math.min(135,1020/p.cols,1130/p.rows),x=(1240-p.cols*size)/2,y=360,clues=new Map();p.runs.forEach(run=>{if(!clues.has(run.clue))clues.set(run.clue,{});clues.get(run.clue)[run.dir?'down':'right']=run.sum;});for(let i=0;i<p.mask.length;i++){const xx=x+(i%p.cols)*size,yy=y+(i/p.cols|0)*size;if(!p.mask[i]){c.fillStyle=ink;c.fillRect(xx,yy,size,size);const clue=clues.get(i);if(clue){c.save();c.strokeStyle=s.paper||'#fffdf6';c.fillStyle=s.paper||'#fffdf6';line(xx,yy,xx+size,yy+size,1.4);if(clue.down)text(clue.down,xx+size*.27,yy+size*.83,size*.27,'center');if(clue.right)text(clue.right,xx+size*.73,yy+size*.34,size*.27,'center');c.restore();}}else{c.fillStyle=ink;const value=(solution?p.answer:p.givens)[i];if(value)text(value,xx+size*.5,yy+size*.69,size*.46,'center',p.givens[i]?'bold':'normal');}c.save();c.strokeStyle=p.mask[i]?ink:(s.paper||'#fffdf6');c.lineWidth=1;c.strokeRect(xx,yy,size,size);c.restore();}}
-return canvas;}
-export function blankPage(){const c=document.createElement('canvas');c.width=1240;c.height=1754;c.getContext('2d').fillStyle='#ffffff';c.getContext('2d').fillRect(0,0,c.width,c.height);return c;}
+
+export function renderPage(item,solution=false){
+  const canvas=document.createElement('canvas');canvas.width=2480;canvas.height=3508;
+  const c=canvas.getContext('2d'),p=item.puzzle,s=item.style||{},ink=s.ink||'#30332e',paper=s.paper||'#fffdf6',font=s.font||'serif';
+  c.scale(2,2);c.fillStyle=paper;c.fillRect(0,0,1240,1754);c.fillStyle=ink;c.strokeStyle=ink;
+  const text=(value,x,y,size=30,align='left',weight='normal')=>{c.font=`${weight} ${size}px ${font}`;c.textAlign=align;c.fillText(value,x,y);};
+  const line=(x,y,x2,y2,width=1)=>{c.beginPath();c.lineWidth=width;c.moveTo(x,y);c.lineTo(x2,y2);c.stroke();};
+  function wrappedLines(value,width,size){c.font=`${size}px ${font}`;let rows=[],row='';for(const word of value.split(' ')){if(row&&c.measureText(row+' '+word).width>width){rows.push(row);row=word;}else row+=(row?' ':'')+word;}if(row)rows.push(row);return rows;}
+  function wrap(value,x,y,width,size){const rows=wrappedLines(value,width,size);rows.forEach((row,i)=>text(row,x,y+i*size*1.28,size));return y+rows.length*size*1.28;}
+  const centeredY=height=>330+(1300-height)/2;
+  const name=GAMES.find(g=>g[0]===p.type)[2],heading=item.title||name+' #1',weight=s.titleBold?'bold':'normal';
+  let titleSize=82;c.font=`${weight} ${titleSize}px ${font}`;
+  while(c.measureText(heading).width>1040&&titleSize>28){titleSize--;c.font=`${weight} ${titleSize}px ${font}`;}
+  text(heading,620,165,titleSize,'center',weight);
+  text('Nivel '+LEVELS[item.level]+(solution?' · Solución':''),620,250,46,'center');
+
+  if(p.type==='sudoku'){
+    const size=112,x=(1240-9*size)/2,y=centeredY(9*size);
+    for(let r=0;r<=9;r++)line(x,y+r*size,x+9*size,y+r*size,r%3===0?4:1);
+    for(let col=0;col<=9;col++)line(x+col*size,y,x+col*size,y+9*size,col%3===0?4:1);
+    for(let i=0;i<81;i++){const v=(solution?p.answer:p.grid)[i];if(v){c.globalAlpha=solution&&!p.grid[i] ? .9 : 1;text(v,x+(i%9+.5)*size,y+((i/9|0)+.69)*size,55,'center',p.grid[i]?'bold':'normal');c.globalAlpha=1;}}
+  }
+  if(p.type==='maze'){
+    const size=1040/p.n,x=100,y=centeredY(1040),n=p.n;
+    for(let i=0;i<n*n;i++){
+      const r=i/n|0,col=i%n;
+      if(p.walls[i][0])line(x+col*size,y+r*size,x+(col+1)*size,y+r*size,2);
+      if(p.walls[i][3])line(x+col*size,y+r*size,x+col*size,y+(r+1)*size,2);
+      if(r===n-1&&p.walls[i][2])line(x+col*size,y+(r+1)*size,x+(col+1)*size,y+(r+1)*size,2);
+      if(col===n-1&&p.walls[i][1])line(x+(col+1)*size,y+r*size,x+(col+1)*size,y+(r+1)*size,2);
+    }
+    text('↓',x+size/2,y-24,32,'center');text('↓',x+1040-size/2,y+1080,32,'center');
+    if(solution){c.save();c.globalAlpha=.45;c.lineWidth=size*.25;c.lineCap='round';c.lineJoin='round';c.beginPath();p.path.forEach((i,k)=>{const px=x+(i%n+.5)*size,py=y+((i/n|0)+.5)*size;k?c.lineTo(px,py):c.moveTo(px,py);});c.stroke();c.restore();}
+  }
+  if(p.type==='words'){
+    const wordRows=Math.ceil(p.placements.length/3),gridSize=Math.min(1000,1240-60-wordRows*43),size=gridSize/p.n,x=(1240-gridSize)/2,y=centeredY(gridSize+100+wordRows*43);
+    if(solution){c.save();c.globalAlpha=.2;c.lineCap='round';p.placements.forEach(w=>{const a=w.cells[0],b=w.cells.at(-1);line(x+(a[1]+.5)*size,y+(a[0]+.5)*size,x+(b[1]+.5)*size+.01,y+(b[0]+.5)*size+.01,size*.72);});c.restore();}
+    p.grid.forEach((ch,i)=>text(ch,x+(i%p.n+.5)*size,y+((i/p.n|0)+.69)*size,size*.52,'center'));
+    line(x-15,y-16,x+gridSize+15,y-16);line(x-15,y+gridSize+16,x+gridSize+15,y+gridSize+16);
+    text('PALABRAS POR ENCONTRAR',620,y+gridSize+68,25,'center');
+    p.placements.forEach((w,i)=>text(w.word,160+(i%3)*340,y+gridSize+115+(i/3|0)*43,30));
+  }
+  if(p.type==='crossword'){
+    const columnHeight=(dir,size)=>60+p.entries.filter(e=>e.dir===dir).reduce((height,e)=>height+wrappedLines(`${e.number}. ${e.clue}`,495,size).length*size*1.28+15,0);
+    let clueSize=33;
+    while(clueSize>27&&Math.max(columnHeight(0,clueSize),columnHeight(1,clueSize))>570)clueSize--;
+    const cluesHeight=Math.max(columnHeight(0,clueSize),columnHeight(1,clueSize));
+    const size=Math.min(90,1020/p.cols,Math.min(850,1300-cluesHeight-75)/p.rows),width=p.cols*size,height=p.rows*size,x=(1240-width)/2,y=centeredY(height+75+cluesHeight);
+    p.grid.forEach((ch,i)=>{const px=x+i%p.cols*size,py=y+(i/p.cols|0)*size;if(!ch){c.globalAlpha=.87;c.fillRect(px,py,size,size);c.globalAlpha=1;}else{c.lineWidth=1;c.strokeRect(px,py,size,size);if(p.numbers[i])text(p.numbers[i],px+size*.09,py+size*.25,size*.22);if(solution)text(ch,px+size*.5,py+size*.76,size*.54,'center');}});
+    const clueY=y+height+75;line(100,clueY-38,1140,clueY-38);
+    for(let dir=0;dir<2;dir++){const xx=100+dir*535;let yy=clueY;text(dir?'Verticales':'Horizontales',xx,yy,37);yy+=55;for(const e of p.entries.filter(e=>e.dir===dir))yy=wrap(`${e.number}. ${e.clue}`,xx,yy,495,clueSize)+15;}
+  }
+  if(p.type==='kakuro'){
+    const size=Math.min(1040/p.cols,1150/p.rows),x=(1240-p.cols*size)/2,y=centeredY(p.rows*size),clues=new Map();
+    p.runs.forEach(run=>{if(!clues.has(run.clue))clues.set(run.clue,{});clues.get(run.clue)[run.dir?'down':'right']=run.sum;});
+    for(let i=0;i<p.mask.length;i++){
+      const xx=x+(i%p.cols)*size,yy=y+(i/p.cols|0)*size;
+      if(!p.mask[i]){c.fillRect(xx,yy,size,size);const clue=clues.get(i);if(clue){c.save();c.strokeStyle=paper;c.fillStyle=paper;line(xx,yy,xx+size,yy+size,1.4);if(clue.down)text(clue.down,xx+size*.27,yy+size*.83,size*.27,'center');if(clue.right)text(clue.right,xx+size*.73,yy+size*.34,size*.27,'center');c.restore();}}
+      else{const value=(solution?p.answer:p.givens)[i];if(value)text(value,xx+size*.5,yy+size*.69,size*.46,'center',p.givens[i]?'bold':'normal');}
+      c.save();c.strokeStyle=p.mask[i]?ink:paper;c.lineWidth=1;c.strokeRect(xx,yy,size,size);c.restore();
+    }
+  }
+  return canvas;
+}
+export function blankPage(){const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,1240,1754);return canvas;}
