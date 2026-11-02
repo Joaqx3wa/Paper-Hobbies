@@ -7,7 +7,7 @@ Generador de pasatiempos en español con estética de papel. Sitio estático com
 - Sudoku con solución única, laberintos, sopas de letras con palabras propias, crucigramas conectados con pistas numeradas, nonogramas/Hanjie con solución única y Kakuro con sumas y ayudas que garantizan una solución única.
 - Tres dificultades por juego. La dificultad cambia el tamaño, las ayudas, las direcciones permitidas o las pistas; no representa una clasificación profesional de técnicas de resolución.
 - Título, tinta, papel y tipografía personalizables.
-- PNG en proporción A4, PDF con tamaño físico A4 y soluciones separadas de las hojas de juego.
+- PNG de 2480 × 3508 píxeles en proporción A4 (ZIP con dos imágenes si se incluye la solución), PDF con tamaño físico A4 y soluciones separadas de las hojas de juego.
 - Colecciones de hasta 24 juegos, reordenables y guardadas en el almacenamiento local del navegador.
 - PDF A6 en orden de lectura o impuesto en hojas A5 horizontales para doblar y engrapar. Cada juego tiene su solución en el reverso. También se puede dejar el reverso en blanco o imprimir juegos consecutivos sin soluciones.
 
