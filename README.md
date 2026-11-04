@@ -19,7 +19,7 @@ Crucigramas y sopas de letras comparten **4213 palabras distintas en 52 temas**,
 
 - PNG de 2480 × 3508 píxeles en proporción A4. Si se incluye solución, se descargan dos imágenes dentro de un ZIP.
 - PDF A4 individual: el juego y su solución están en páginas consecutivas.
-- Paquetes con cantidades independientes por dificultad (por ejemplo, 5 fáciles, 3 intermedios y 2 difíciles).
+- Paquetes con cantidades independientes por dificultad (por ejemplo, 5 fáciles, 3 intermedios y 2 difíciles). El selector «Temática del paquete» permite elegir un tema o «Todas las temáticas», independientemente del editor individual. Se aplica a sopas y crucigramas; la elección se guarda en el navegador.
 - Colecciones de hasta 24 juegos, reordenables y guardadas localmente en el navegador.
 - PDF A4 o A6 en orden de lectura.
 - Cuadernillo A6 impuesto sobre A5 o A4. Cada solución se encuentra al reverso de la página de su juego. También se puede dejar ese reverso en blanco o imprimir juegos consecutivos sin soluciones.
