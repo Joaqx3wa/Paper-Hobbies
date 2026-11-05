@@ -14,6 +14,18 @@ test('AA, aa y Aa respetan tildes, números y el tema del subtítulo',()=>{asser
 
 test('Paquetes: 5 fáciles, 3 intermedios y 2 difíciles sin depender del editor',()=>{const plan=batchPlan([5,3,2]);assert.equal(plan.length,10);assert.deepEqual([0,1,2].map(level=>plan.filter(it=>it.level===level).length),[5,3,2]);assert.ok(batchPlan([1,2,3],'maze').every(it=>it.type==='maze'));assert.throws(()=>batchPlan([0,0,0]));assert.throws(()=>batchPlan([10,10,10]));assert.throws(()=>batchPlan([-1,2,0]));assert.throws(()=>batchPlan([1.5,0,0]));});
 
+test('Paquetes: temas distintos por juego y mezcla opcional solo en crucigramas',()=>{
+  for(const game of ['mix','words','crossword']){
+    const themed=batchPlan([8,8,8],game).filter(entry=>['words','crossword'].includes(entry.type));
+    assert.ok(themed.every(({theme})=>theme!=='general'&&theme!=='ingles_general'&&THEMES.some(option=>option.id===theme)));
+    assert.equal(new Set(themed.map(entry=>entry.theme)).size,themed.length);
+  }
+  const mixed=batchPlan([5,0,0],'mix',{theme:'navidad',mixCrossword:true});
+  assert.equal(mixed.find(entry=>entry.type==='crossword').theme,'general');
+  assert.equal(mixed.find(entry=>entry.type==='words').theme,'navidad');
+  assert.ok(batchPlan([2,0,0],'crossword',{theme:'navidad'}).every(entry=>entry.theme==='navidad'));
+});
+
 test('Laberintos: muchos callejones y desvíos profundos junto a la solución',()=>{for(let level=0;level<3;level++)for(let attempt=0;attempt<12;attempt++){const p=generate('maze',level),n=p.n,solution=new Set(p.path),d=[-n,1,n,-1];const neighbors=i=>d.flatMap((delta,dir)=>!p.walls[i][dir]&&i+delta>=0&&i+delta<n*n?[i+delta]:[]);let deadEnds=0,deep=0;for(let i=0;i<n*n;i++)if(neighbors(i).length===1)deadEnds++;for(const i of p.path)for(const start of neighbors(i))if(!solution.has(start)){let branch=[[start,i,1]],depth=0;while(branch.length){const [cell,prev,len]=branch.pop();depth=Math.max(depth,len);neighbors(cell).filter(j=>j!==prev).forEach(j=>branch.push([j,cell,len+1]));}if(depth>=3)deep++;}assert.ok(deadEnds>=n*n*.14);assert.ok(deep>=[4,8,14][level]);assert.ok(p.path.length>=n*3);}});
 test('Sudokus: solución válida y única en los tres niveles',()=>{for(let l=0;l<3;l++)for(let k=0;k<4;k++){const p=generate('sudoku',l);assert.equal(sudokuCount(p.grid),1);for(let r=0;r<9;r++){assert.equal(new Set(p.answer.slice(r*9,r*9+9)).size,9);assert.equal(new Set(Array.from({length:9},(_,c)=>p.answer[c*9+r])).size,9);}p.grid.forEach((v,i)=>assert.ok(!v||v===p.answer[i]));}});
 test('Laberintos: todos los caminos conectados, solución continua, entradas abiertas',()=>{for(let l=0;l<3;l++){const p=generate('maze',l),n=p.n,seen=new Set([0]),todo=[0],d=[-n,1,n,-1];for(let k=0;k<todo.length;k++){let i=todo[k];p.walls[i].forEach((wall,dir)=>{let j=i+d[dir];if(!wall&&j>=0&&j<n*n){assert.equal(p.walls[j][(dir+2)%4],false);if(!seen.has(j)){seen.add(j);todo.push(j);}}});}assert.equal(seen.size,n*n);assert.equal(p.path[0],0);assert.equal(p.path.at(-1),n*n-1);for(let k=1;k<p.path.length;k++){let a=p.path[k-1],b=p.path[k],dir=d.indexOf(b-a);assert.ok(dir>=0);assert.equal(p.walls[a][dir],false);}}});

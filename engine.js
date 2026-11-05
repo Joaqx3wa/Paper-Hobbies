@@ -14,6 +14,7 @@ for(const [theme,entries] of Object.entries(EXPANDED_BANK)){const unique=new Map
 lists.general=[...new Map(Object.entries(lists).filter(([id])=>!isEnglishTheme(id)).flatMap(([,entries])=>entries).map(entry=>[entry[0],entry])).values()];
 export const BANK_WORD_COUNT=new Set(Object.values(lists).flatMap(entries=>entries.map(entry=>entry[0]))).size;
 export const THEMES=Object.entries(THEME_LABELS).map(([id,label])=>({id,label,count:lists[id]?.length||0,language:isEnglishTheme(id)?'en':'es'})).sort((a,b)=>a.label.localeCompare(b.label,'es',{sensitivity:'base'}));
+export const SINGLE_THEMES=THEMES.filter(({id})=>id!=='general'&&id!=='ingles_general');
 export function dictionary(theme='general'){return lists[theme]||lists.general;}
 const histories={crossword:{},words:{}};
 export function wordHistory(){return JSON.parse(JSON.stringify(histories));}
@@ -35,4 +36,21 @@ export function impose(pages){pages=pages.slice();while(pages.length%4)pages.pus
 
 export function imposeOnA4(pages){const layout=impose(pages),sides=[];for(let sheet=0;sheet<Math.ceil(layout.sheets/2);sheet++)for(let face=0;face<2;face++){sides.push({sheet:sheet+1,face:face?'Reverso':'Frente',halves:[layout.sides[sheet*4+face]||null,layout.sides[sheet*4+2+face]||null]});}return {...layout,a4Sides:sides,a4Sheets:Math.ceil(layout.sheets/2)};}
 
-export function batchPlan(counts,game='mix'){if(!Array.isArray(counts)||counts.length!==3||counts.some(n=>!Number.isInteger(n)||n<0||n>24))throw Error('Usa cantidades enteras entre 0 y 24.');const total=counts.reduce((a,b)=>a+b,0);if(!total||total>24)throw Error('El paquete debe tener entre 1 y 24 juegos.');if(game!=='mix'&&!GAMES.some(g=>g[0]===game))throw Error('Juego no válido.');const plan=[];counts.forEach((count,level)=>{for(let i=0;i<count;i++)plan.push({level,type:game==='mix'?GAMES[plan.length%GAMES.length][0]:game});});return plan;}
+export function batchPlan(counts,game='mix',{theme='general',mixCrossword=false}={}){
+  if(!Array.isArray(counts)||counts.length!==3||counts.some(n=>!Number.isInteger(n)||n<0||n>24))throw Error('Usa cantidades enteras entre 0 y 24.');
+  const total=counts.reduce((a,b)=>a+b,0);
+  if(!total||total>24)throw Error('El paquete debe tener entre 1 y 24 juegos.');
+  if(game!=='mix'&&!GAMES.some(g=>g[0]===game))throw Error('Juego no válido.');
+  const availableThemes=theme==='general'?shuffle(SINGLE_THEMES):[];
+  const plan=[];
+  counts.forEach((count,level)=>{
+    for(let i=0;i<count;i++){
+      const type=game==='mix'?GAMES[plan.length%GAMES.length][0]:game;
+      const entry={level,type};
+      if(type==='crossword'&&mixCrossword)entry.theme='general';
+      else if(type==='words'||type==='crossword')entry.theme=availableThemes.pop()?.id??theme;
+      plan.push(entry);
+    }
+  });
+  return plan;
+}

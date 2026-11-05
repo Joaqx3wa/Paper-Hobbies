@@ -13,13 +13,13 @@ Generador de pasatiempos en español, con estética de papel y exportación para
 - Color de papel y tipografía. La tinta se previsualiza en vivo al ajustar el selector RGB y se guarda al confirmar; cancelar o cerrar restaura el color anterior. Se guardan hasta cuatro opciones; un color nuevo reemplaza la última, conservando las primeras tres.
 - La zona principal se ajusta a una pantalla de escritorio; el armado de cuadernillos queda debajo.
 
-Crucigramas y sopas de letras comparten **4213 palabras distintas en 52 temas**, más las mezclas «Todos los temas» e «Inglés · Vocabulario variado». Las palabras tienen pistas propias para formar crucigramas y se reutilizan en las sopas. Se evita reutilizar las palabras del juego anterior del mismo tipo y tema; un historial reciente, guardado localmente, reduce las repeticiones posteriores. Las sopas admiten además palabras propias. Los temas están ordenados alfabéticamente. Los temas en inglés reúnen 770 palabras: las sopas muestran su traducción al español y los crucigramas usan respuestas en inglés con pistas en español. No se necesitan cuentas ni servicios de generación externos.
+Crucigramas y sopas de letras comparten **4213 palabras distintas en 52 temas**. Las palabras tienen pistas propias para formar crucigramas y se reutilizan en las sopas. Se evita reutilizar las palabras del juego anterior del mismo tipo y tema; un historial reciente, guardado localmente, reduce las repeticiones posteriores. Las sopas admiten además palabras propias. Los temas están ordenados alfabéticamente. Los temas en inglés reúnen 770 palabras: las sopas muestran su traducción al español y los crucigramas usan respuestas en inglés con pistas en español. No se necesitan cuentas ni servicios de generación externos.
 
 ## Descargas
 
 - PNG de 2480 × 3508 píxeles en proporción A4. Si se incluye solución, se descargan dos imágenes dentro de un ZIP.
 - PDF A4 individual: el juego y su solución están en páginas consecutivas.
-- Paquetes con cantidades independientes por dificultad (por ejemplo, 5 fáciles, 3 intermedios y 2 difíciles). El selector «Temática del paquete» permite elegir un tema o «Todas las temáticas», independientemente del editor individual. Se aplica a sopas y crucigramas; la elección se guarda en el navegador.
+- Paquetes con cantidades independientes por dificultad (por ejemplo, 5 fáciles, 3 intermedios y 2 difíciles). El selector «Temática del paquete» permite elegir un tema o «Todas las temáticas», independientemente del editor individual. Con «Todas las temáticas», cada sopa y crucigrama temático recibe un tema distinto dentro del paquete. La casilla de mezcla combina temas en cada crucigrama. Las preferencias se guardan en el navegador.
 - Colecciones de hasta 24 juegos, reordenables y guardadas localmente en el navegador.
 - PDF A4 o A6 en orden de lectura.
 - Cuadernillo A6 impuesto sobre A5 o A4. Cada solución se encuentra al reverso de la página de su juego. También se puede dejar ese reverso en blanco o imprimir juegos consecutivos sin soluciones.
