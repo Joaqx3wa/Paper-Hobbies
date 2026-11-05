@@ -17,7 +17,7 @@ Crucigramas y sopas de letras comparten **4213 palabras distintas en 52 temas**.
 
 ## Descargas
 
-- PNG de 2480 × 3508 píxeles en proporción A4. Si se incluye solución, se descargan dos imágenes dentro de un ZIP.
+- PNG A4 de 4960 × 7016 píxeles con tamaño de impresión registrado en el archivo. Si se incluye solución, se descargan dos imágenes dentro de un ZIP.
 - PDF A4 individual: el juego y su solución están en páginas consecutivas.
 - Paquetes con cantidades independientes por dificultad (por ejemplo, 5 fáciles, 3 intermedios y 2 difíciles). El selector «Temática del paquete» permite elegir un tema o «Todas las temáticas», independientemente del editor individual. Con «Todas las temáticas», cada sopa y crucigrama temático recibe un tema distinto dentro del paquete. La casilla de mezcla combina temas en cada crucigrama. Las preferencias se guardan en el navegador.
 - Colecciones de hasta 24 juegos, reordenables y guardadas localmente en el navegador.
@@ -51,7 +51,7 @@ npm start
 
 Vista local: http://127.0.0.1:4173. Las pruebas verifican las restricciones y la unicidad de los juegos, la variedad de Kakuro, la imposición A5/A4 y el límite de cuatro colores.
 
-El PDF se genera en el navegador con imágenes de alta resolución. Las fuentes de la interfaz se cargan desde Google Fonts con alternativas locales. La generación y las descargas funcionan sin ellas.
+El PDF se genera en el navegador con imágenes comprimidas sin pérdida en navegadores compatibles. Los PNG y los PDF se renderizan a unos 600 ppp al tamaño de impresión. Si el dispositivo no admite el lienzo de alta resolución, se intenta a 300 ppp. Las fuentes de la interfaz se cargan desde Google Fonts con alternativas locales. La generación y las descargas funcionan sin ellas.
 
 ## Publicación
 

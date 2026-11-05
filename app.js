@@ -1,5 +1,6 @@
 import {GAMES,LEVELS,HELP,generate,logicalPages,imposeOnA4,batchPlan,THEMES,SINGLE_THEMES,BANK_WORD_COUNT,wordHistory,restoreWordHistory} from './engine.js';
-import {renderPage,blankPage} from './render.js';
+import {renderPage,paintPage} from './render.js';
+import {printPng} from './png.js';
 import {makePdf,pageImage} from './pdf.js';
 import {makeZip} from './zip.js';
 import {DEFAULT_COLORS,savedPalette,confirmPalette,validColor} from './palette.js';
@@ -56,12 +57,88 @@ $('ink').oninput=()=>{draftFields($('ink').value);draftInk=$('ink').value;drawPr
 $('confirmColor').onclick=e=>{if(!['red','green','blue'].every(id=>$(id).checkValidity()&&$(id).value!=='')){e.preventDefault();return;}const confirmed=confirmPalette(colors,$('ink').value);colors=confirmed.colors;ink=confirmed.selected;draftInk=null;syncSwatches();repaint();status('Color confirmado y guardado.');};
 ['paper','font','showSolution','titleBold'].forEach(id=>$(id).addEventListener('input',repaint));
 $('regenerate').onclick=regenerate;$('theme').onchange=regenerate;$('crosswordMix').onchange=regenerate;$('words').onchange=()=>{if(type==='words')regenerate();};
-$('download').onclick=()=>work(async()=>{const base=slug(current.title),png=async solution=>new Promise(resolve=>renderPage(current,solution).toBlob(resolve,'image/png'));const front=await png(false);if($('solutions').checked){const back=await png(true);download(makeZip([{name:base+'-juego-a4.png',bytes:new Uint8Array(await front.arrayBuffer())},{name:base+'-solucion-a4.png',bytes:new Uint8Array(await back.arrayBuffer())}]),base+'-png-a4.zip');status('ZIP descargado con el juego y su solución.');}else{download(front,base+'-juego-a4.png');status('Imagen A4 descargada.');}},'Preparando imágenes A4…');
+$('download').onclick=()=>work(async()=>{const base=slug(current.title),png=solution=>exportRaster(scale=>renderPage(current,solution,scale),canvas=>printPng(canvas,210,297));const front=await png(false);if($('solutions').checked){const back=await png(true);download(makeZip([{name:base+'-juego-a4.png',bytes:new Uint8Array(await front.arrayBuffer())},{name:base+'-solucion-a4.png',bytes:new Uint8Array(await back.arrayBuffer())}]),base+'-png-a4.zip');status('ZIP descargado con el juego y su solución.');}else{download(front,base+'-juego-a4.png');status('Imagen A4 descargada.');}},'Preparando imágenes A4…');
 
-function drawSpread(ctx,side,y=0){if(!side)return;side.pages.forEach((p,k)=>ctx.drawImage(p.blank?blankPage():renderPage(p.item,p.solution),k*1240,y,1240,1748));ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(1240,y+4);ctx.lineTo(1240,y+22);ctx.moveTo(1240,y+1726);ctx.lineTo(1240,y+1744);ctx.stroke();}
+function drawSpread(ctx,side,y=0){
+  if(!side)return;
+  side.pages.forEach((page,index)=>{
+    if(page.blank)return;
+    ctx.save();
+    ctx.translate(index*1240,y);
+    ctx.scale(1,1748/1754);
+    paintPage(ctx,page.item,page.solution);
+    ctx.restore();
+  });
+  ctx.strokeStyle='#aaa';
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(1240,y+4);
+  ctx.lineTo(1240,y+22);
+  ctx.moveTo(1240,y+1726);
+  ctx.lineTo(1240,y+1744);
+  ctx.stroke();
+}
 function physicalPages(items,mode,format){const logical=logicalPages(items,mode),layout=imposeOnA4(logical);if(format==='booklet-a4')return {layout,sides:layout.a4Sides,width:210,height:297};if(format==='booklet')return {layout,sides:layout.sides,width:210,height:148};return {layout,sides:logical.map((p,i)=>({page:p,number:i+1})),width:format==='a6'?105:210,height:format==='a6'?148:297};}
-function sheetCanvas(side,format){if(format!=='booklet'&&format!=='booklet-a4')return side.page.blank?blankPage():renderPage(side.page.item,side.page.solution);const canvas=document.createElement('canvas');canvas.width=2480;canvas.height=format==='booklet-a4'?3508:1748;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);if(format==='booklet-a4'){drawSpread(ctx,side.halves[0],3);drawSpread(ctx,side.halves[1],1757);ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.setLineDash([8,12]);ctx.beginPath();ctx.moveTo(4,1754);ctx.lineTo(2476,1754);ctx.stroke();}else drawSpread(ctx,side);return canvas;}
-async function pdfFrom(items,mode,format){const physical=physicalPages(items,mode,format),output=[];for(const side of physical.sides){output.push(pageImage(sheetCanvas(side,format)));await pause();}return makePdf(output,physical.width,physical.height);}
+function sheetCanvas(side,format,scale=2,readPixels=false){
+  const imposed=format==='booklet-a4'||format==='booklet';
+  const width=imposed?2480:1240;
+  const height=format==='booklet-a4'?3508:format==='booklet'?1748:1754;
+  const factor=imposed?scale/2:scale;
+  const canvas=document.createElement('canvas');
+  canvas.width=width*factor;
+  canvas.height=height*factor;
+  const ctx=canvas.getContext('2d',{willReadFrequently:readPixels});
+  ctx.scale(factor,factor);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,width,height);
+  if(format==='booklet-a4'){
+    drawSpread(ctx,side.halves[0],3);
+    drawSpread(ctx,side.halves[1],1757);
+    ctx.strokeStyle='#aaa';
+    ctx.lineWidth=1;
+    ctx.setLineDash([8,12]);
+    ctx.beginPath();
+    ctx.moveTo(4,1754);
+    ctx.lineTo(2476,1754);
+    ctx.stroke();
+  }else if(format==='booklet'){
+    drawSpread(ctx,side);
+  }else if(!side.page.blank){
+    paintPage(ctx,side.page.item,side.page.solution);
+  }
+  return canvas;
+}
+
+async function exportRaster(render,encode,scale=4){
+  let canvas;
+  try{
+    canvas=render(scale);
+    return await encode(canvas);
+  }catch{
+    // Some devices cannot allocate the 600 ppp canvas. Retry at 300 ppp.
+  }finally{
+    // Release the backing bitmap before drawing another print page.
+    if(canvas)canvas.width=0;
+  }
+  canvas=render(scale/2);
+  try{
+    return await encode(canvas);
+  }finally{
+    canvas.width=0;
+  }
+}
+
+async function pdfFrom(items,mode,format){
+  const physical=physicalPages(items,mode,format);
+  const output=[];
+  // An A6 reading page has half the linear dimensions of A4.
+  const scale=format==='a6'?2:4;
+  for(const side of physical.sides){
+    output.push(await exportRaster(density=>sheetCanvas(side,format,density,true),pageImage,scale));
+    await pause();
+  }
+  return makePdf(output,physical.width,physical.height);
+}
 $('singlePdf').onclick=()=>work(async()=>{download(await pdfFrom([current],$('solutions').checked?'solution':'next','a4'),slug(current.title)+'-a4.pdf');status('PDF A4 listo para imprimir.');},'Preparando PDF…');
 $('add').onclick=()=>{if(queue.length>=24){status('Máximo 24 juegos. Exporta este cuadernillo antes de empezar otro.');return;}const copy=structuredClone(current);copy.id=crypto.randomUUID();queue.push(copy);updateQueue();repaint();status('Añadido al cuadernillo.');};
 function sideDescription(side,format){const pages=s=>s?s.indices.map(i=>i+1).join(' / '):'en blanco';if(format==='booklet-a4')return `A4 ${side.sheet} · ${side.face} · arriba A5 ${side.halves[0]?.sheet||'—'} (${pages(side.halves[0])}) · abajo A5 ${side.halves[1]?.sheet||'—'} (${pages(side.halves[1])})`;if(format==='booklet')return `Hoja A5 ${side.sheet} · ${side.face} · páginas ${pages(side)}`;return `Página ${side.number}${side.page.blank?' · en blanco':side.page.solution?' · solución':' · juego'}`;}

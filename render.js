@@ -3,10 +3,20 @@ import {GAMES,LEVELS,THEMES} from './engine.js';
 
 const BORDER_WIDTH=4;
 
-export function renderPage(item,solution=false){
-  const canvas=document.createElement('canvas');canvas.width=2480;canvas.height=3508;
-  const c=canvas.getContext('2d'),p=item.puzzle,s=item.style||{},ink=s.ink||'#30332e',paper=s.paper||'#fffdf6',font=s.font||'serif';
-  c.scale(2,2);c.fillStyle=paper;c.fillRect(0,0,1240,1754);c.fillStyle=ink;c.strokeStyle=ink;
+export function renderPage(item,solution=false,scale=2){
+  const canvas=document.createElement('canvas');
+  canvas.width=1240*scale;
+  canvas.height=1754*scale;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(scale,scale);
+  paintPage(ctx,item,solution);
+  return canvas;
+}
+
+// Draw in logical A4 coordinates so imposed pages can render directly on the sheet.
+export function paintPage(c,item,solution=false){
+  const p=item.puzzle,s=item.style||{},ink=s.ink||'#30332e',paper=s.paper||'#fffdf6',font=s.font||'serif';
+  c.fillStyle=paper;c.fillRect(0,0,1240,1754);c.fillStyle=ink;c.strokeStyle=ink;
   const text=(value,x,y,size=30,align='left',weight='normal')=>{c.font=`${weight} ${size}px ${font}`;c.textAlign=align;c.fillText(value,x,y);};
   const line=(x,y,x2,y2,width=1)=>{c.beginPath();c.lineWidth=width;c.moveTo(x,y);c.lineTo(x2,y2);c.stroke();};
   function wrappedLines(value,width,size){c.font=`${size}px ${font}`;let rows=[],row='';for(const word of value.split(' ')){if(row&&c.measureText(row+' '+word).width>width){rows.push(row);row=word;}else row+=(row?' ':'')+word;}if(row)rows.push(row);return rows;}
@@ -85,6 +95,4 @@ export function renderPage(item,solution=false){
       c.save();c.strokeStyle=p.mask[i]?ink:paper;c.lineWidth=1;c.strokeRect(xx,yy,size,size);c.restore();
     }
   }
-  return canvas;
 }
-export function blankPage(){const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,1240,1754);return canvas;}
