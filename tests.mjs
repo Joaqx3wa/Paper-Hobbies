@@ -21,9 +21,43 @@ test('Paquetes: temas distintos por juego y mezcla opcional solo en crucigramas'
     assert.equal(new Set(themed.map(entry=>entry.theme)).size,themed.length);
   }
   const mixed=batchPlan([5,0,0],'mix',{theme:'navidad',mixCrossword:true});
-  assert.equal(mixed.find(entry=>entry.type==='crossword').theme,'general');
+  assert.ok(dictionary(mixed.find(entry=>entry.type==='crossword').theme).some(([word])=>word==='PIKACHU'));
   assert.equal(mixed.find(entry=>entry.type==='words').theme,'navidad');
   assert.ok(batchPlan([2,0,0],'crossword',{theme:'navidad'}).every(entry=>entry.theme==='navidad'));
+});
+
+test('Filtro geek: limita los temas del paquete y las pistas del crucigrama mixto',()=>{
+  const geekIds=['pokemon','videojuegos','marvel','dc','superheroes'];
+  const geekEntries=new Set(geekIds.flatMap(id=>dictionary(id)));
+  const only=batchPlan([8,8,8],'words',{geek:'only'});
+  assert.deepEqual(new Set(only.map(entry=>entry.theme)),new Set(geekIds));
+  assert.ok(batchPlan([8,8,8],'crossword',{geek:'exclude'}).every(entry=>!geekIds.includes(entry.theme)));
+  assert.throws(()=>batchPlan([1,0,0],'words',{geek:'exclude',theme:'pokemon'}));
+
+  const [excluded]=batchPlan([0,1,0],'crossword',{geek:'exclude',mixCrossword:true});
+  const [geekOnly]=batchPlan([0,1,0],'crossword',{geek:'only',mixCrossword:true});
+  assert.ok(dictionary(excluded.theme).every(entry=>!geekEntries.has(entry)));
+  assert.ok(dictionary(geekOnly.theme).every(entry=>geekEntries.has(entry)));
+  for(const plan of [excluded,geekOnly]){
+    const answers=new Map(dictionary(plan.theme).map(entry=>[entry[0],entry[plan.level+1]]));
+    const game=generate(plan.type,plan.level,plan.theme);
+    assert.equal(game.entries.length,9);
+    assert.ok(game.entries.every(({word,clue})=>answers.get(word)===clue));
+  }
+});
+
+test('Todas las temáticas omite festividades y permite elegirlas explícitamente',()=>{
+  const festiveIds=['anionuevo','carnaval','cumpleanos','diamadre','diapadre','festividades',
+    'halloween','maestro','navidad','pascua','sanvalentin'];
+  const festiveEntries=new Set(festiveIds.flatMap(id=>dictionary(id)));
+  for(const geek of ['include','exclude','only']){
+    for(const type of ['words','crossword']){
+      assert.ok(batchPlan([8,8,8],type,{geek}).every(({theme})=>!festiveIds.includes(theme)));
+    }
+    const [mixed]=batchPlan([0,1,0],'crossword',{geek,mixCrossword:true});
+    assert.ok(dictionary(mixed.theme).every(entry=>!festiveEntries.has(entry)));
+  }
+  assert.equal(batchPlan([1,0,0],'words',{theme:'navidad',geek:'exclude'})[0].theme,'navidad');
 });
 
 test('Laberintos: muchos callejones y desvíos profundos junto a la solución',()=>{for(let level=0;level<3;level++)for(let attempt=0;attempt<12;attempt++){const p=generate('maze',level),n=p.n,solution=new Set(p.path),d=[-n,1,n,-1];const neighbors=i=>d.flatMap((delta,dir)=>!p.walls[i][dir]&&i+delta>=0&&i+delta<n*n?[i+delta]:[]);let deadEnds=0,deep=0;for(let i=0;i<n*n;i++)if(neighbors(i).length===1)deadEnds++;for(const i of p.path)for(const start of neighbors(i))if(!solution.has(start)){let branch=[[start,i,1]],depth=0;while(branch.length){const [cell,prev,len]=branch.pop();depth=Math.max(depth,len);neighbors(cell).filter(j=>j!==prev).forEach(j=>branch.push([j,cell,len+1]));}if(depth>=3)deep++;}assert.ok(deadEnds>=n*n*.14);assert.ok(deep>=[4,8,14][level]);assert.ok(p.path.length>=n*3);}});

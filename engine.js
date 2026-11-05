@@ -11,10 +11,34 @@ export const normalize=s=>s.toUpperCase().normalize('NFD').replace(/[\u0300-\u03
 const lists={naturaleza:[['SOL','Astro que ilumina el día','Estrella de nuestro sistema','Centro de nuestro sistema planetario'],['LUNA','Satélite de la Tierra','Compañera nocturna de la Tierra','Gobierna las mareas sin tocar el mar'],['ARBOL','Planta con tronco y ramas','Vegetal de tallo leñoso','Su edad queda escrita en anillos'],['FLOR','Parte colorida de una planta','Órgano reproductor de muchas plantas','Promesa de un fruto'],['BOSQUE','Lugar con muchos árboles','Ecosistema dominado por árboles','Comunidad vegetal de dosel arbóreo'],['RIO','Corriente natural de agua','Curso de agua que desemboca en otro','Esculpe valles mientras fluye'],['MAR','Gran extensión de agua salada','Masa salada menor que un océano','Destino de muchos ríos'],['NUBE','Masa blanca que vemos en el cielo','Gotas suspendidas en la atmósfera','Agua que viaja sin cauce'],['VIENTO','Aire en movimiento','Desplazamiento de masas de aire','Transporta semillas sin manos'],['TIERRA','Planeta en el que vivimos','Tercer planeta desde el Sol','Mundo de un único satélite natural'],['RAIZ','Parte de la planta bajo el suelo','Órgano que absorbe agua del suelo','Ancla vegetal que alimenta'],['SEMILLA','De ella nace una planta','Estructura que contiene un embrión vegetal','Una nueva vida vegetal en reposo'],['HOJA','Parte verde y plana de una planta','Órgano principal de la fotosíntesis','Fábrica vegetal de azúcares'],['PIEDRA','Trozo de roca','Fragmento sólido de mineral o roca','Testigo mineral de la erosión'],['ARENA','Granitos que cubren la playa','Partículas de roca de tamaño granular','La roca convertida en innumerables granos'],['OCEANO','Enorme masa de agua salada','Gran división del agua del planeta','Ocupa la mayor parte de la superficie terrestre'],['MONTE','Elevación natural del terreno','Elevación menor que una gran montaña','Accidente del relieve que asciende sobre su entorno'],['SELVA','Bosque tropical muy frondoso','Bosque cálido de gran biodiversidad','Ecosistema de estratos y lluvias abundantes'],['CORAL','Forma arrecifes en el mar','Animal colonial que construye arrecifes','Constructor marino de esqueleto calcáreo'],['ABEJA','Insecto que produce miel','Polinizador que vive en colmenas','Transforma néctar en una reserva dulce'],['TIGRE','Felino grande con rayas','Felino asiático de pelaje rayado','Gran Panthera de bandas oscuras'],['OSO','Animal grande que puede hibernar','Mamífero de la familia Ursidae','Plantígrado de dieta habitualmente omnívora'],['RANA','Animal que salta y croa','Anfibio adulto sin cola','Anuro de metamorfosis acuática'],['NIDO','Hogar que construyen las aves','Estructura para proteger huevos','Primera morada de muchos polluelos'],['TRUENO','Sonido de una tormenta','Ruido que acompaña al relámpago','Onda acústica de una descarga atmosférica'],['LLUVIA','Agua que cae de las nubes','Precipitación de gotas de agua','Retorno líquido del ciclo hidrológico']],cotidiano:[['CASA','Lugar donde vivimos','Edificio destinado a vivienda','Espacio doméstico que ofrece refugio'],['MESA','Mueble para comer','Superficie horizontal con patas','Punto de encuentro de una sobremesa'],['SILLA','Mueble para sentarse','Asiento con respaldo','Compañera individual de una mesa'],['LIBRO','Tiene páginas para leer','Obra reunida en hojas encuadernadas','Universo que cabe entre dos cubiertas'],['LAPIZ','Sirve para escribir y se puede borrar','Instrumento con mina de grafito','Deja huellas que una goma puede retirar'],['PAPEL','Hoja sobre la que escribimos','Material de fibras de celulosa','Soporte ligero de palabras y pliegues'],['RELOJ','Sirve para saber la hora','Instrumento que mide el tiempo','Divide el día sin detenerlo'],['PAN','Alimento de harina horneada','Masa fermentada que se cuece','Resultado del trabajo de levaduras y horno'],['TAZA','Recipiente para beber café','Vasija pequeña con asa','Refugio de una infusión caliente'],['PUERTA','Se abre para entrar','Elemento que cierra un acceso','Umbral móvil entre dos espacios'],['VENTANA','Permite ver hacia fuera','Abertura que deja entrar luz','Marco desde el que se contempla el exterior'],['CAMA','Mueble para dormir','Lugar de descanso nocturno','Mueble que recibe nuestros sueños'],['COCINA','Lugar para preparar comida','Espacio doméstico de elaboración de alimentos','Taller cotidiano de sabores'],['ESPEJO','Refleja nuestra imagen','Superficie que devuelve la luz','Ofrece una imagen de simetría invertida'],['RADIO','Aparato para escuchar emisoras','Receptor de ondas sonoras transmitidas','Voces que llegan por ondas electromagnéticas'],['CALLE','Vía entre las casas','Camino público de una población','Espacio urbano que enlaza fachadas'],['BOLSA','Sirve para llevar compras','Recipiente flexible para transportar cosas','Contenedor que se pliega al vaciarlo'],['JABON','Se usa para lavarse','Producto que ayuda a quitar la grasa','Aliado del agua frente a la suciedad'],['PLATO','En él servimos la comida','Vajilla de superficie amplia y poco profunda','Soporte de cada ración en la mesa'],['SAL','Da sabor salado','Condimento de cloruro de sodio','Cristal que el mar deja al evaporarse']],ciencia:[['ATOMO','Unidad pequeña de la materia','Unidad de un elemento químico','Núcleo y electrones en una misma entidad'],['CELULA','Unidad básica de los seres vivos','Mínima unidad estructural de la vida','Sistema vivo delimitado por una membrana'],['LUZ','Nos permite ver','Radiación visible para el ojo humano','Onda y partícula en la visión'],['ENERGIA','Capacidad para producir cambios','Capacidad de realizar trabajo','Se transforma y se conserva en un sistema aislado'],['MASA','Cantidad de materia de un cuerpo','Magnitud vinculada a la inercia','Resistencia de un cuerpo a cambiar su movimiento'],['ORBITA','Camino de un planeta','Trayectoria de un cuerpo alrededor de otro','Recorrido gravitatorio que puede ser elíptico'],['ARTE','Creación que expresa ideas o emociones','Expresión humana con intención estética','Lenguaje de formas y sensibilidad'],['MUSICA','Arte de combinar sonidos','Organización expresiva de sonidos y silencios','Tiempo convertido en ritmo y armonía'],['POEMA','Texto escrito en versos','Composición literaria de intención lírica','Palabras cuya cadencia también significa'],['TEATRO','Arte de representar historias','Representación escénica ante un público','Ficción que sucede en presencia del espectador'],['MAPA','Dibujo de un territorio','Representación de una superficie a escala','El territorio reducido a signos'],['NUMERO','Sirve para contar','Entidad matemática que expresa cantidad','Abstracción con la que ordenamos y medimos'],['CERO','Número que indica ninguna cantidad','Elemento neutro de la suma','No altera una suma y anula un producto'],['PRISMA','Sólido que puede separar la luz','Poliedro con dos bases paralelas iguales','Su versión óptica revela el espectro'],['LASER','Emite un haz de luz concentrado','Fuente de radiación coherente','Amplifica luz por emisión estimulada'],['METAL','Material como el hierro o el cobre','Material normalmente conductor y maleable','Sus electrones libres favorecen la conducción'],['FOSIL','Resto antiguo de un ser vivo','Evidencia de vida conservada en rocas','Archivo biológico de tiempos geológicos'],['GEN','Fragmento de ADN con información hereditaria','Unidad de información hereditaria','Secuencia que contribuye a un producto funcional']]};
 
 for(const [theme,entries] of Object.entries(EXPANDED_BANK)){const unique=new Map((lists[theme]||[]).map(entry=>[entry[0],entry]));entries.forEach(entry=>{if(!unique.has(entry[0]))unique.set(entry[0],entry);});lists[theme]=[...unique.values()];}
-lists.general=[...new Map(Object.entries(lists).filter(([id])=>!isEnglishTheme(id)).flatMap(([,entries])=>entries).map(entry=>[entry[0],entry])).values()];
+const GEEK_THEMES=new Set(['pokemon','videojuegos','marvel','dc','superheroes']);
+const FESTIVE_THEMES=new Set([
+  'anionuevo','carnaval','cumpleanos','diamadre','diapadre','festividades',
+  'halloween','maestro','navidad','pascua','sanvalentin'
+]);
+const MIXED_THEME={include:'cuadernillo_variado',exclude:'general_sin_geek',only:'general_solo_geek'};
+const spanishBanks=Object.entries(lists).filter(([id])=>!isEnglishTheme(id));
+function combineBanks(banks){
+  const entries=banks.flatMap(([,bank])=>bank);
+  return [...new Map(entries.map(entry=>[entry[0],entry])).values()];
+}
+lists.general=combineBanks(spanishBanks);
+for(const [mode,id] of Object.entries(MIXED_THEME)){
+  lists[id]=combineBanks(spanishBanks.filter(([theme])=>
+    !FESTIVE_THEMES.has(theme)&&(mode==='include'||GEEK_THEMES.has(theme)===(mode==='only'))
+  ));
+}
 export const BANK_WORD_COUNT=new Set(Object.values(lists).flatMap(entries=>entries.map(entry=>entry[0]))).size;
 export const THEMES=Object.entries(THEME_LABELS).map(([id,label])=>({id,label,count:lists[id]?.length||0,language:isEnglishTheme(id)?'en':'es'})).sort((a,b)=>a.label.localeCompare(b.label,'es',{sensitivity:'base'}));
 export const SINGLE_THEMES=THEMES.filter(({id})=>id!=='general'&&id!=='ingles_general');
+export function bookletThemes(mode='include'){
+  return SINGLE_THEMES.filter(({id})=>mode==='include'||GEEK_THEMES.has(id)===(mode==='only'));
+}
+export function themeLabel(id){
+  if(id===MIXED_THEME.exclude||id===MIXED_THEME.include)return 'Temas variados';
+  if(id===MIXED_THEME.only)return 'Temas geek';
+  return THEME_LABELS[id]||'';
+}
 export function dictionary(theme='general'){return lists[theme]||lists.general;}
 const histories={crossword:{},words:{}};
 export function wordHistory(){return JSON.parse(JSON.stringify(histories));}
@@ -62,19 +86,27 @@ export function impose(pages){pages=pages.slice();while(pages.length%4)pages.pus
 
 export function imposeOnA4(pages){const layout=impose(pages),sides=[];for(let sheet=0;sheet<Math.ceil(layout.sheets/2);sheet++)for(let face=0;face<2;face++){sides.push({sheet:sheet+1,face:face?'Reverso':'Frente',halves:[layout.sides[sheet*4+face]||null,layout.sides[sheet*4+2+face]||null]});}return {...layout,a4Sides:sides,a4Sheets:Math.ceil(layout.sheets/2)};}
 
-export function batchPlan(counts,game='mix',{theme='general',mixCrossword=false}={}){
+export function batchPlan(counts,game='mix',{theme='general',mixCrossword=false,geek='include'}={}){
   if(!Array.isArray(counts)||counts.length!==3||counts.some(n=>!Number.isInteger(n)||n<0||n>24))throw Error('Usa cantidades enteras entre 0 y 24.');
   const total=counts.reduce((a,b)=>a+b,0);
   if(!total||total>24)throw Error('El paquete debe tener entre 1 y 24 juegos.');
   if(game!=='mix'&&!GAMES.some(g=>g[0]===game))throw Error('Juego no válido.');
-  const availableThemes=theme==='general'?shuffle(SINGLE_THEMES):[];
+  if(!Object.hasOwn(MIXED_THEME,geek))throw Error('Elige una opción válida para los temas geek.');
+  const allowedThemes=bookletThemes(geek);
+  if(theme!=='general'&&!allowedThemes.some(option=>option.id===theme)){
+    throw Error('El tema elegido no está disponible con este filtro.');
+  }
+  const availableThemes=shuffle(allowedThemes.filter(({id})=>!FESTIVE_THEMES.has(id)));
+  let themeIndex=0;
   const plan=[];
   counts.forEach((count,level)=>{
     for(let i=0;i<count;i++){
       const type=game==='mix'?GAMES[plan.length%GAMES.length][0]:game;
       const entry={level,type};
-      if(type==='crossword'&&mixCrossword)entry.theme='general';
-      else if(type==='words'||type==='crossword')entry.theme=availableThemes.pop()?.id??theme;
+      if(type==='crossword'&&mixCrossword)entry.theme=MIXED_THEME[geek];
+      else if(type==='words'||type==='crossword'){
+        entry.theme=theme==='general'?availableThemes[themeIndex++%availableThemes.length].id:theme;
+      }
       plan.push(entry);
     }
   });

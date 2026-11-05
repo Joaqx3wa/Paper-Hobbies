@@ -1,4 +1,4 @@
-import {GAMES,LEVELS,HELP,generate,logicalPages,imposeOnA4,batchPlan,THEMES,SINGLE_THEMES,BANK_WORD_COUNT,wordHistory,restoreWordHistory} from './engine.js';
+import {GAMES,LEVELS,HELP,generate,logicalPages,imposeOnA4,batchPlan,THEMES,SINGLE_THEMES,bookletThemes,themeLabel,BANK_WORD_COUNT,wordHistory,restoreWordHistory} from './engine.js';
 import {renderPage,paintPage} from './render.js';
 import {printPng} from './png.js';
 import {makePdf,pageImage} from './pdf.js';
@@ -13,12 +13,16 @@ function themeOption(id,label){
   option.textContent=label;
   return option;
 }
-for(const id of ['theme','batchTheme']){
-  const options=SINGLE_THEMES.map(theme=>themeOption(theme.id,theme.label+' · '+theme.count));
-  if(id==='batchTheme')options.unshift(themeOption('general','Todas las temáticas'));
-  $(id).replaceChildren(...options);
-}
+const catalogOption=theme=>themeOption(theme.id,theme.label+' · '+theme.count);
+$('theme').replaceChildren(...SINGLE_THEMES.map(catalogOption));
 $('theme').value='naturaleza';
+
+function updateBatchThemes(selected=$('batchTheme').value){
+  const themes=bookletThemes($('batchGeek').value);
+  $('batchTheme').replaceChildren(themeOption('general','Todas las temáticas'),...themes.map(catalogOption));
+  $('batchTheme').value=themes.some(theme=>theme.id===selected)?selected:'general';
+}
+updateBatchThemes();
 $('bankStats').textContent=THEMES.length-2+' temas · '+BANK_WORD_COUNT+' palabras';
 function syncCases(){for(const id of ['titleCase','subtitleCase'])document.querySelectorAll('#'+id+' button').forEach(button=>{const active=button.dataset.case===(id==='titleCase'?titleCase:subtitleCase);button.classList.toggle('selected',active);button.setAttribute('aria-pressed',active);});}
 for(const id of ['titleCase','subtitleCase'])document.querySelectorAll('#'+id+' button').forEach(button=>button.onclick=()=>{if(id==='titleCase')titleCase=button.dataset.case;else subtitleCase=button.dataset.case;syncCases();repaint();});
@@ -30,12 +34,13 @@ const style=()=>({ink,paper:$('paper').value,font:$('font').value,titleBold:$('t
 const status=text=>{$('status').textContent=text;$('batchStatus').textContent=text;};
 const nameFor=(t,n)=>`${gameName(t)} #${n}`;
 const nextNumber=t=>queue.filter(it=>it.puzzle.type===t).length+1;
-function save(){try{localStorage.setItem('paper-hobbies-v1',JSON.stringify({queue,theme:$('theme').value,batchTheme:$('batchTheme').value,crosswordMix:$('crosswordMix').checked,batchCrosswordMix:$('batchCrosswordMix').checked,wordHistory:wordHistory(),style:style(),colors,bookTitle:$('bookTitle').value,backMode:$('backMode').value,pdfMode:$('pdfMode').value}));}catch{status('No hay espacio para guardar esta colección. Puedes seguir descargando.');}}
+function save(){try{localStorage.setItem('paper-hobbies-v1',JSON.stringify({queue,theme:$('theme').value,batchTheme:$('batchTheme').value,batchGeek:$('batchGeek').value,crosswordMix:$('crosswordMix').checked,batchCrosswordMix:$('batchCrosswordMix').checked,wordHistory:wordHistory(),style:style(),colors,bookTitle:$('bookTitle').value,backMode:$('backMode').value,pdfMode:$('pdfMode').value}));}catch{status('No hay espacio para guardar esta colección. Puedes seguir descargando.');}}
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
 function slug(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase()||'paper-hobbies';}
 function controls(){document.querySelectorAll('button,input,select,textarea').forEach(b=>b.disabled=busy);const batchGame=$('batchGame').value;
   const batchHasCrosswords=['mix','crossword'].includes(batchGame);
   $('batchCrosswordMixOption').hidden=!batchHasCrosswords;
+  $('batchGeek').disabled=busy||(!batchHasCrosswords&&batchGame!=='words');
   $('batchTheme').disabled=busy||(!['mix','words'].includes(batchGame)&&!(batchHasCrosswords&&!$('batchCrosswordMix').checked));
   $('crosswordMixOption').hidden=type!=='crossword';
   $('theme').disabled=busy||(type==='crossword'&&$('crosswordMix').checked);
@@ -145,7 +150,7 @@ function sideDescription(side,format){const pages=s=>s?s.indices.map(i=>i+1).joi
 function previewBook(physical,format){const select=$('sheetSelect');select.replaceChildren();['sheetSelect','sheetLabel','bookPreview'].forEach(id=>$(id).hidden=!physical.sides.length);$('sheetLabel').textContent=format==='booklet-a4'?'Vista de impresión · A4 vertical para cortar':format==='booklet'?'Vista de impresión · A5 horizontal':'Vista de impresión · orden de lectura';physical.sides.forEach((s,i)=>{const option=document.createElement('option');option.value=i;option.textContent=sideDescription(s,format);select.append(option);});const draw=()=>{const side=physical.sides[Number(select.value)];if(!side)return;const image=sheetCanvas(side,format),canvas=$('bookPreview');canvas.width=image.width;canvas.height=image.height;canvas.getContext('2d').drawImage(image,0,0);};select.onchange=draw;draw();}
 function updateQueue(){
   const counts={};queue.forEach(it=>{counts[it.puzzle.type]=(counts[it.puzzle.type]||0)+1;it.title=nameFor(it.puzzle.type,counts[it.puzzle.type]);});
-  const list=$('queue');list.replaceChildren();queue.forEach((it,index)=>{const li=document.createElement('li'),label=document.createElement('span');label.textContent=it.title;const sub=document.createElement('small');const topic=THEMES.find(theme=>theme.id===it.puzzle.theme);sub.textContent=`Nivel ${LEVELS[it.level]}${topic?' · '+topic.label:''}`;label.append(sub);li.append(label);for(const [text,title,fn] of [['↑','Subir',()=>{if(index){[queue[index-1],queue[index]]=[queue[index],queue[index-1]];updateQueue();}}],['↓','Bajar',()=>{if(index<queue.length-1){[queue[index+1],queue[index]]=[queue[index],queue[index+1]];updateQueue();}}],['×','Quitar',()=>{queue.splice(index,1);updateQueue();repaint();}]]){const b=document.createElement('button');b.textContent=text;b.setAttribute('aria-label',title+' juego '+(index+1));b.onclick=fn;li.append(b);}list.append(li);});
+  const list=$('queue');list.replaceChildren();queue.forEach((it,index)=>{const li=document.createElement('li'),label=document.createElement('span');label.textContent=it.title;const sub=document.createElement('small');const topic=themeLabel(it.puzzle.theme);sub.textContent=`Nivel ${LEVELS[it.level]}${topic?' · '+topic:''}`;label.append(sub);li.append(label);for(const [text,title,fn] of [['↑','Subir',()=>{if(index){[queue[index-1],queue[index]]=[queue[index],queue[index-1]];updateQueue();}}],['↓','Bajar',()=>{if(index<queue.length-1){[queue[index+1],queue[index]]=[queue[index],queue[index+1]];updateQueue();}}],['×','Quitar',()=>{queue.splice(index,1);updateQueue();repaint();}]]){const b=document.createElement('button');b.textContent=text;b.setAttribute('aria-label',title+' juego '+(index+1));b.onclick=fn;li.append(b);}list.append(li);});
   const format=$('pdfMode').value,mode=$('backMode').value,physical=physicalPages(queue,mode,format),logical=logicalPages(queue,mode),padding=physical.layout.pages.length-logical.length;
   const paper=format==='booklet-a4'?`${physical.layout.a4Sheets} hojas A4 a doble cara · cortar en ${physical.layout.sheets} pliegos A5 y doblar a A6`:format==='booklet'?`${physical.layout.sheets} hojas A5 a doble cara para doblar a A6`:`${logical.length} páginas ${format.toUpperCase()} en orden de lectura`;
   $('summary').textContent=queue.length?`${queue.length} juegos · ${logical.length} páginas${format.startsWith('booklet')&&padding?' + '+padding+' en blanco':''} · ${paper}. ${mode==='solution'?'Cada solución queda al reverso de su juego.':''}`:'Añade tu primer pasatiempo para empezar.';previewBook(physical,format);$('imposition').replaceChildren();physical.sides.forEach(s=>{const row=document.createElement('div');row.textContent=sideDescription(s,format);$('imposition').append(row);});save();
@@ -154,7 +159,8 @@ $('batch').onclick=()=>work(async()=>{
   const counts=['quantityEasy','quantityMedium','quantityHard'].map(id=>Number($(id).value));
   const plan=batchPlan(counts,$('batchGame').value,{
     theme:$('batchTheme').value,
-    mixCrossword:$('batchCrosswordMix').checked
+    mixCrossword:$('batchCrosswordMix').checked,
+    geek:$('batchGeek').value
   });
   if(queue.length+plan.length>24)throw Error('El total no puede superar 24 juegos.');
   const added=[];
@@ -171,9 +177,11 @@ $('batch').onclick=()=>work(async()=>{
 },'Preparando el paquete…');
 $('exportBook').onclick=()=>work(async()=>{if(!queue.length)throw Error('Añade al menos un juego al cuadernillo.');const format=$('pdfMode').value,suffix=format==='booklet-a4'?'a4-cortar-y-doblar-a6':format==='booklet'?'a5-para-doblar-a6':format;download(await pdfFrom(queue,$('backMode').value,format),slug($('bookTitle').value)+'-'+suffix+'.pdf');status('PDF descargado. Revisa las instrucciones de impresión.');},'Ordenando las páginas para tu cuadernillo…');
 $('clear').onclick=()=>{queue=[];updateQueue();repaint();};$('backMode').onchange=updateQueue;$('pdfMode').onchange=updateQueue;$('bookTitle').oninput=save;
-try{const stored=JSON.parse(localStorage.getItem('paper-hobbies-v1')||'null');if(stored){restoreWordHistory(stored.wordHistory);if(SINGLE_THEMES.some(theme=>theme.id===stored.batchTheme))$('batchTheme').value=stored.batchTheme;
+try{const stored=JSON.parse(localStorage.getItem('paper-hobbies-v1')||'null');if(stored){restoreWordHistory(stored.wordHistory);
+  if(['include','exclude','only'].includes(stored.batchGeek))$('batchGeek').value=stored.batchGeek;
+  updateBatchThemes(stored.batchTheme);
   if(SINGLE_THEMES.some(theme=>theme.id===stored.theme))$('theme').value=stored.theme;
   $('crosswordMix').checked=Boolean(stored.crosswordMix);
   $('batchCrosswordMix').checked=Boolean(stored.batchCrosswordMix);if(Array.isArray(stored.queue))queue=stored.queue.filter(x=>x?.puzzle&&GAMES.some(g=>g[0]===x.puzzle.type)).slice(0,24);queue.forEach(it=>{if(it.puzzle.type==='kakuro'&&!it.puzzle.mask)it.puzzle=generate('kakuro',it.level);});colors=savedPalette(stored.colors);if(stored.style){if(validColor(stored.style.ink)){ink=stored.style.ink;colors=confirmPalette(colors,ink).colors;}$('paper').value=stored.style.paper||'#fffdf6';$('font').value=stored.style.font||'serif';$('titleBold').checked=Boolean(stored.style.titleBold);if(['upper','lower','title'].includes(stored.style.titleCase))titleCase=stored.style.titleCase;if(['upper','lower','title'].includes(stored.style.subtitleCase))subtitleCase=stored.style.subtitleCase;}if(stored.bookTitle)$('bookTitle').value=stored.bookTitle;if(['solution','blank','next'].includes(stored.backMode))$('backMode').value=stored.backMode;if(['booklet-a4','booklet','a4','a6'].includes(stored.pdfMode))$('pdfMode').value=stored.pdfMode;}}catch{status('No se pudo restaurar la colección anterior.');}
-$('batchGame').onchange=controls;$('batchTheme').onchange=save;$('batchCrosswordMix').onchange=()=>{controls();save();};
+$('batchGame').onchange=controls;$('batchTheme').onchange=save;$('batchGeek').onchange=()=>{updateBatchThemes();save();};$('batchCrosswordMix').onchange=()=>{controls();save();};
 $('solutions').onchange=()=>{$('download').textContent=$('solutions').checked?'↓ PNG + solución · ZIP':'↓ Descargar PNG · A4';};$('solutions').onchange();syncCases();syncSwatches();updateQueue();regenerate();

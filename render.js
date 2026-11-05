@@ -1,5 +1,5 @@
 import {applyCase,subtitleText} from './typography.js';
-import {GAMES,LEVELS,THEMES} from './engine.js';
+import {GAMES,LEVELS,themeLabel} from './engine.js';
 
 const BORDER_WIDTH=4;
 
@@ -27,8 +27,8 @@ export function paintPage(c,item,solution=false){
   let titleSize=82;c.font=`${weight} ${titleSize}px ${font}`;
   while(c.measureText(heading).width>1040&&titleSize>28){titleSize--;c.font=`${weight} ${titleSize}px ${font}`;}
   text(heading,620,165,titleSize,'center',weight);
-  const themeLabel=['crossword','words'].includes(p.type)?(THEMES.find(theme=>theme.id===p.theme)?.label||'Temas variados'):'';
-  const subtitle=subtitleText(LEVELS[item.level],themeLabel,solution,s.subtitleCase||'title');
+  const topic=['crossword','words'].includes(p.type)?(themeLabel(p.theme)||'Temas variados'):'';
+  const subtitle=subtitleText(LEVELS[item.level],topic,solution,s.subtitleCase||'title');
   let subtitleSize=46;c.font=`${subtitleSize}px ${font}`;
   while(c.measureText(subtitle).width>1040&&subtitleSize>40){subtitleSize--;c.font=`${subtitleSize}px ${font}`;}
   c.textAlign='center';
